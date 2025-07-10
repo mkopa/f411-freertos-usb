@@ -1,0 +1,25 @@
+
+# Bazujemy na stylu LLVM, ale z kilkoma modyfikacjami
+BasedOnStyle: LLVM
+
+# Indentacja
+IndentWidth: 2
+UseTab: Never
+
+# Kontrola zawijania linii
+ColumnLimit: 120
+
+# Kontrola nawiasów klamrowych
+BreakBeforeBraces: Attach
+
+# Zachowanie krótkich bloków - ustawiamy wszystko na `false` lub `None`,
+# aby wymusić rozbijanie na wiele linii dla spójności.
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None    # `None` jest tutaj poprawne
+AllowShortLoopsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never # `Never` jest tutaj poprawne
+
+# Dodatkowe ustawienia
+IndentCaseLabels: true
+Language: Cpp

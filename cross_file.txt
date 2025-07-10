@@ -1,0 +1,21 @@
+# cross_file.txt
+[binaries]
+c = 'arm-none-eabi-gcc'
+cpp = 'arm-none-eabi-g++'
+ar = 'arm-none-eabi-ar'
+strip = 'arm-none-eabi-strip'
+objcopy = 'arm-none-eabi-objcopy'
+ld = 'arm-none-eabi-ld'
+
+[built-in options]
+c_args = ['-mcpu=cortex-m4', '-mthumb', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard']
+cpp_args = c_args
+
+c_link_args = ['-mcpu=cortex-m4', '-mthumb', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard', '-specs=nano.specs']
+cpp_link_args = c_link_args
+
+[host_machine]
+system = 'none'
+cpu_family = 'arm'
+cpu = 'cortex-m4'
+endian = 'little'
