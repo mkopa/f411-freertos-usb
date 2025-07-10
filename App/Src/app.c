@@ -14,9 +14,9 @@ osThreadId_t appTaskHandle;
 static uint8_t cdc_rx_buffer[RX_BUFF_SIZE];
 
 const osThreadAttr_t appTask_attributes = {
-  .name = "StartAppTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t)osPriorityNormal,
+    .name = "StartAppTask",
+    .stack_size = 256 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 
 void StartAppTask(void *argument) {
@@ -26,7 +26,8 @@ void StartAppTask(void *argument) {
     uint32_t len = CDC_GetRxLength_FS();
     if (len > 0 && len != last_len) {
       memcpy(cdc_rx_buffer, CDC_GetRxBuffer_FS(), len);
-      if (len < RX_BUFF_SIZE) cdc_rx_buffer[len] = '\0';
+      if (len < RX_BUFF_SIZE)
+        cdc_rx_buffer[len] = '\0';
 
       // echo
       CDC_Transmit_FS(cdc_rx_buffer, len);
