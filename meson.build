@@ -163,7 +163,9 @@ clang_format = find_program('clang-format', required: false)
 if clang_format.found()
   files_to_format = files(
     'App/Inc/app.h',
-    'App/Src/app.c'
+    'App/Inc/circ_buffer.h',
+    'App/Src/app.c',
+    'App/Src/circ_buffer.c'
   )
   run_target('format-app',
     command: [clang_format, '-i', files_to_format]
