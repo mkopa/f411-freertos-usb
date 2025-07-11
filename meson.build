@@ -35,6 +35,7 @@ inc_dirs = include_directories(
 # --- Sources ---
 c_sources = files(
   'App/Src/app.c',
+  'App/Src/circ_buffer.c',
   'Core/Src/main.c',
   'Core/Src/gpio.c',
   'Core/Src/i2c.c',
