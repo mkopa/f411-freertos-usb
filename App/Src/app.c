@@ -1,17 +1,21 @@
-// Plik: App/Src/app.c
 #include "app.h"
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "main.h"
+#include "stream_buffer.h"
 #include "task.h"
 #include "usb_device.h"
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 
+#define STREAM_BUFFER_SIZE 256
+#define STREAM_BUFFER_TRIGGER_LEVEL 1
+
 osThreadId_t appTaskHandle;
 
-#define RX_BUFF_SIZE 64
-static uint8_t cdc_rx_buffer[RX_BUFF_SIZE];
+StreamBufferHandle_t usbStreamBufferHandle;
+static uint8_t ucStreamBufferStorage[STREAM_BUFFER_SIZE];
+static StaticStreamBuffer_t xStreamBufferStruct;
 
 const osThreadAttr_t appTask_attributes = {
     .name = "StartAppTask",
@@ -20,24 +24,24 @@ const osThreadAttr_t appTask_attributes = {
 };
 
 void StartAppTask(void *argument) {
-  uint32_t last_len = 0;
+  uint8_t local_buffer[APP_RX_DATA_SIZE];
+  size_t received_bytes;
 
   for (;;) {
-    uint32_t len = CDC_GetRxLength_FS();
-    if (len > 0 && len != last_len) {
-      memcpy(cdc_rx_buffer, CDC_GetRxBuffer_FS(), len);
-      if (len < RX_BUFF_SIZE)
-        cdc_rx_buffer[len] = '\0';
+    received_bytes =
+        xStreamBufferReceive(usbStreamBufferHandle, (void *)local_buffer, sizeof(local_buffer), portMAX_DELAY);
 
-      // echo
-      CDC_Transmit_FS(cdc_rx_buffer, len);
-      last_len = len;
+    if (received_bytes > 0) {
+      CDC_Transmit_FS(local_buffer, received_bytes);
     }
-
-    osDelay(10);
   }
 }
 
 void APP_Init(void) {
+  usbStreamBufferHandle = xStreamBufferCreateStatic(sizeof(ucStreamBufferStorage), STREAM_BUFFER_TRIGGER_LEVEL,
+                                                    ucStreamBufferStorage, &xStreamBufferStruct);
+
+  configASSERT(usbStreamBufferHandle != NULL);
+
   appTaskHandle = osThreadNew(StartAppTask, NULL, &appTask_attributes);
 }
