@@ -248,14 +248,20 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t *pbuf, uint16_t length) {
  */
 static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len) {
   /* USER CODE BEGIN 6 */
-  for (uint32_t i = 0; i < *Len; i++) {
-    circ_buffer_write(&usb_rx_buffer, Buf[i]);
-  }
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-  osSemaphoreRelease(usbRxSemaphoreHandle);
+
+  xStreamBufferSendFromISR(usbStreamBufferHandle,
+                           (const void *)Buf,
+                           *Len,
+                           &xHigherPriorityTaskWoken);
+
 
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
   return (USBD_OK);
   /* USER CODE END 6 */
 }

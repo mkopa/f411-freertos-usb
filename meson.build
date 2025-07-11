@@ -35,7 +35,6 @@ inc_dirs = include_directories(
 # --- Sources ---
 c_sources = files(
   'App/Src/app.c',
-  'App/Src/circ_buffer.c',
   'Core/Src/main.c',
   'Core/Src/gpio.c',
   'Core/Src/i2c.c',
@@ -163,9 +162,7 @@ clang_format = find_program('clang-format', required: false)
 if clang_format.found()
   files_to_format = files(
     'App/Inc/app.h',
-    'App/Inc/circ_buffer.h',
-    'App/Src/app.c',
-    'App/Src/circ_buffer.c'
+    'App/Src/app.c'
   )
   run_target('format-app',
     command: [clang_format, '-i', files_to_format]

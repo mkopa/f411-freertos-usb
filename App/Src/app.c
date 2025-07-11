@@ -1,16 +1,21 @@
-// Plik: App/Src/app.c
 #include "app.h"
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "main.h"
+#include "stream_buffer.h"
 #include "task.h"
 #include "usb_device.h"
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 
+#define STREAM_BUFFER_SIZE 256
+#define STREAM_BUFFER_TRIGGER_LEVEL 1
+
 osThreadId_t appTaskHandle;
-osSemaphoreId_t usbRxSemaphoreHandle;
-circ_buffer_t usb_rx_buffer;
+
+StreamBufferHandle_t usbStreamBufferHandle;
+static uint8_t ucStreamBufferStorage[STREAM_BUFFER_SIZE];
+static StaticStreamBuffer_t xStreamBufferStruct;
 
 const osThreadAttr_t appTask_attributes = {
     .name = "StartAppTask",
@@ -19,34 +24,24 @@ const osThreadAttr_t appTask_attributes = {
 };
 
 void StartAppTask(void *argument) {
-  uint8_t rx_byte;
   uint8_t local_buffer[APP_RX_DATA_SIZE];
-  uint16_t len = 0;
+  size_t received_bytes;
 
   for (;;) {
-    // Czekaj na sygnał od przerwania USB (bez końca)
-    if (osSemaphoreAcquire(usbRxSemaphoreHandle, osWaitForever) == osOK) {
+    received_bytes =
+        xStreamBufferReceive(usbStreamBufferHandle, (void *)local_buffer, sizeof(local_buffer), portMAX_DELAY);
 
-      // Opróżnij cały bufor kołowy
-      len = 0;
-      while (circ_buffer_read(&usb_rx_buffer, &rx_byte)) {
-        if (len < APP_RX_DATA_SIZE) {
-          local_buffer[len++] = rx_byte;
-        }
-      }
-
-      // Jeśli odczytano dane, wykonaj echo
-      if (len > 0) {
-        CDC_Transmit_FS(local_buffer, len);
-      }
+    if (received_bytes > 0) {
+      CDC_Transmit_FS(local_buffer, received_bytes);
     }
   }
 }
 
 void APP_Init(void) {
-  circ_buffer_init(&usb_rx_buffer);
+  usbStreamBufferHandle = xStreamBufferCreateStatic(sizeof(ucStreamBufferStorage), STREAM_BUFFER_TRIGGER_LEVEL,
+                                                    ucStreamBufferStorage, &xStreamBufferStruct);
 
-  usbRxSemaphoreHandle = osSemaphoreNew(1, 0, NULL);
+  configASSERT(usbStreamBufferHandle != NULL);
 
   appTaskHandle = osThreadNew(StartAppTask, NULL, &appTask_attributes);
 }
