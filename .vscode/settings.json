@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "task.h": "c"
+        "task.h": "c",
+        "usbd_cdc_if.h": "c"
     }
 }

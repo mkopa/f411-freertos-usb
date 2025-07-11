@@ -4,7 +4,7 @@ project('f411-freertos-usb', 'c', 'cpp',
         meson_version: '>=1.4.0',
         default_options: ['c_std=c11', 'cpp_std=c++17', 'warning_level=2'])
 
-executable_name = meson.project_name()
+executable_name = meson.project_name() + '.elf'
 
 # --- Args ---
 c_defines = [

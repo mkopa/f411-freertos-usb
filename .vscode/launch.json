@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/f411-freertos-usb.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "serverpath": "/usr/bin/openocd",
+            "device": "STM32F411CEU6",
+            "configFiles": [
+                "openocd.cfg"
+            ],
+            "svdFile": "STM32F411.svd",
+            "runToMain": true
+        }
+    ]
+}
